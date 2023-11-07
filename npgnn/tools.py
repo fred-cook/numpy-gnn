@@ -18,6 +18,9 @@ def norm_diff(dW, dW_approx):
     return np.linalg.norm(dW - dW_approx) / (np.linalg.norm(dW) + np.linalg.norm(dW_approx))
 
 class GradDescentOptim():
+    """
+    A helper class to store gradients between layers
+    """
     def __init__(self, lr, wd):
         self.lr = lr
         self.wd = wd
