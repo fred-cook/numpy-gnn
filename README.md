@@ -26,5 +26,7 @@ Represented by the `GCNLayer` class.
 It takes a number of input features `N_in` and a number of output features `N_out` which determine the size of the learnable parameter matrix (weights) denoted `W`.
 
 The GCN `forward` method implements the following equation:
-$$H^(l+1)=\sigma(WAH^l)$$
+$$H^(l+1)=\sigma(W\hatAH^l)$$
+
+The node embeddings in $H^l are updated to $H^{l+1} by multiplying with the normalised adjacency matrix $\hatA. This is where the message passing between nodes occurs. We also multiply the weights $W and put the output through the activation function $\sigma.
 
