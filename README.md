@@ -26,5 +26,5 @@ Represented by the `GCNLayer` class.
 It takes a number of input features `N_in` and a number of output features `N_out` which determine the size of the learnable parameter matrix (weights) denoted `W`.
 
 The GCN `forward` method implements the following equation:
-$$ H^(l + 1) = \sigma(WAH^l) $$
+$$H^(l+1)=\sigma(WAH^l)$$
 
