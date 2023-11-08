@@ -7,7 +7,7 @@ def glorot_init(n_in: int, n_out: int):
     sd = np.sqrt(6.0 / (n_in + n_out))
     return np.random.uniform(-sd, sd, size=(n_in, n_out))
 
-def x_entropy(pred: np.ndarray, labels):
+def x_entropy(pred: np.ndarray, labels) -> np.ndarray:
     """
     Calculate Cross entropy
     """
@@ -21,16 +21,17 @@ class GradDescentOptim():
     """
     A helper class to store gradients between layers
     """
-    def __init__(self, lr, wd):
-        self.lr = lr
-        self.wd = wd
-        self._y_pred = None
-        self._y_true = None
+    def __init__(self, lr: float, wd: float):
+        self.lr = lr # learning rate
+        self.wd = wd # weight decay
+        self._y_pred = None # output from the GCN
+        self._y_true = None # True value
         self._out = None
-        self.bs = None
+        self.bs = None # batch size
         self.train_nodes = None
 
-    def __call__(self, y_pred, y_true, train_nodes=None):
+    def __call__(self, y_pred: np.ndarray, y_true: np.ndarray,
+                 train_nodes: np.ndarray | None=None):
         self.y_pred = y_pred
         self.y_true = y_true
 
