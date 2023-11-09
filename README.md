@@ -10,7 +10,7 @@ We will denote the number of nodes `N`.
 ## Adjacency Matrix
 
 `A` is the adjanceny matrix. It has shape `(N, N)`
-'A_self = A + np.eye(len(A))` is the adjacency matrix with self connections for nodes.
+`A_self = A + np.eye(len(A))` is the adjacency matrix with self connections for nodes.
 `D_mod` is the sums of the rows of `A_self` placed in the diagonals of a matrix with the same shape as `A`.
 
 `A_hat` is a normalised version of `A_self` created by:
@@ -21,12 +21,36 @@ We will denote the number of nodes `N`.
 
 ## GCN Layer
 
-Represented by the `GCNLayer` class.
+Represented by the [`GCNLayer`](npgnn/gcn_layer.py) class.
 
 It takes a number of input features `N_in` and a number of output features `N_out` which determine the size of the learnable parameter matrix (weights) denoted `W`.
 
 The GCN `forward` method implements the following equation:
 $$H^{(l+1)}=\sigma(W\hat AH^l)$$
 
-The node embeddings in $H^l are updated to $H^{l+1}$ by multiplying with the normalised adjacency matrix $\hat A$. This is where the message passing between nodes occurs. We also multiply the weights $W$ and put the output through the activation function $\sigma$.
+The node embeddings in $H^l$ (where $l$ is the layer number) are updated to $H^{l+1}$ by multiplying with the normalised adjacency matrix $\hat A$. This is where the message passing between nodes occurs. We also multiply the weights $W$ and put the output through the activation function $\sigma$.
 
+## Softmax Layer
+
+The final layer will be a more typical neural network layer, [`SoftmaxLayer`](npgnn/softmax_layer.py) which is very similar to the above, with the exclusion of the message passing and inclusion of some bias values. This converts the embedded values to probabilities of the different classes.
+
+The `shift` method is to improve the numerical stability, it does not change the result.
+
+## Gradient Descent Optimizer
+
+There is a helper class in [`tools`](npgnn/tools.py) called `GradDescentOptim` which stores the gradients from the different layers.
+
+It has a few attributes:
+- `lr`: learning rate, the size of the steps during gradient descent
+- `wd`: weight decay, modifies the weight values.
+- `bs`: batch size, how many nodes included in each training step.
+
+## Back Propagation
+
+Starting with the last layer (softmax) we mask out any nodes we don't want to train on. Here we are training on them all.
+
+`d1` stores the derivative of the loss function with respect to input values pre-softmax, which has been stored in the optimizer.
+- `d1` is multiplied by the softmax layer's `W` and stored in the optimizer to be back propagated to the previous layer.
+- `d1` is also multiplied with the final layers output to get the layers derivative with respect to the weight `dW`
+- The partial derivative with respect to the bias `b`, `db` is also calculated.
+- An additional weight decay (parameter stored in the optimizer) is calculated and added to `dW` when the weights are updated.
