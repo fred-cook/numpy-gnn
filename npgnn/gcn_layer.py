@@ -6,8 +6,8 @@ from tools import GradDescentOptim
 
 class GCNLayer:
     def __init__(self, n_in: int, n_out: int,
-                 weight_initialiser: Callable([int, int], np.ndarray),
-                 activation: Callable(np.ndarray, np.ndarray) | None=None,
+                 weight_initialiser: Callable[[int, int], np.ndarray],
+                 activation: Callable[np.ndarray, np.ndarray] | None=None,
                  name: str=''):
         """
         A class for a graph convolutional network layer

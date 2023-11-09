@@ -6,7 +6,7 @@ from tools import GradDescentOptim
 
 class SoftmaxLayer():
     def __init__(self, n_in: int, n_out: int,
-                 weight_initialiser: Callable([int, int], np.ndarray),
+                 weight_initialiser: Callable[[int, int], np.ndarray],
                  name: str=''):
         """
         A class for a graph convolutional network layer
@@ -23,7 +23,7 @@ class SoftmaxLayer():
         """
         self.n_inputs = n_in
         self.n_outputs = n_out
-        self.W = weight_initialiser(n_in, n_out)
+        self.W = weight_initialiser(n_out, n_in)
         self.b = np.zeros((self.n_outputs, 1)) # bias
         self.name = name
 
@@ -79,8 +79,7 @@ class SoftmaxLayer():
         update: bool
             whether to store the updated weights
         """
-        # should take in optimizer, update its own parameters and update the optimizer's "out"
-        # Build mask on loss
+        # Any masked out nodes get a loss of 0
         train_mask = np.zeros(len(optim.y_pred))
         train_mask[optim.train_nodes] = 1
         train_mask = train_mask.reshape((-1, 1))

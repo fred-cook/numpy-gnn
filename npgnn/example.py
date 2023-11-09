@@ -3,9 +3,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from networkx.algorithms.community.modularity_max import greedy_modularity_communities
 
-from gcn_layer import GCNLayer
-from softmax_layer import SoftmaxLayer
-from tools import GradDescentOptim
+from gcn_network import GCNNetwork
+from tools import x_entropy
 
 def draw_kkl(nx_G: nx.Graph, label_map, node_color, pos=None, **kwargs):
     """Helper function to plot the network"""
@@ -38,4 +37,16 @@ inv_D_mod_root = np.linalg.inv(D_mod**0.5)
 
 A_hat = inv_D_mod_root @ A_self @ inv_D_mod_root
 
-X = np.eye(G.number_of_nodes()) # Input features
+X = np.eye(G.number_of_nodes()) # Input feature
+
+gcn_model = GCNNetwork(
+    n_in=G.number_of_nodes(),
+    n_out=n_classes,
+    hidden_sizes=(16, 2),
+    activation=np.tanh,
+    seed=5052023
+)
+
+y_pred = gcn_model.forward(A_hat, X)
+embed = gcn_model.embedding(A_hat, X)
+print(x_entropy(y_pred, labels).mean())
