@@ -7,6 +7,10 @@ Using the Zachary's Karate Club sample dataset.
 Karate club has 34 nodes (people)
 We will denote the number of nodes `N`. These are to be sorted into 3 categories, denoted `n`. So the input of the network has size `N` and the output has size `n`.
 
+### Usage
+
+Have `poetry` installed, clone the repo and run `poetry install` from within it. Enter the new venv with `poetry shell`. All of the imports are relative at the moment. Might change to a proper package one day
+
 ## Adjacency Matrix
 
 `A` is the adjanceny matrix. It has shape `(N, N)`
