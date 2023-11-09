@@ -51,7 +51,7 @@ as well as storing the gradients from a layer to be passed to the previous layer
 
 The layers are stacked in a general way using [`GCNNetwork`](npgnn/gcn_network.py). This takes a number of arguments for hidden layer sizes, and puts a GCN with size `n_in` at the start, and a softmax layer which outputs `n_out` on the end.
 
-When performing a forward pass the `GCN`s are looped over creating an embedding. The final output from the embedding is passed into the softmax layer to be converted to a class likelihood.
+When performing a forward pass the `GCN`s are looped over creating an embedding. These all take the adjacency matrix as a parameter. The final output from the embedding is passed into the softmax layer to be converted to a class likelihood. Note that this does not perform message passing, and therefore doesn't need `A`.
 
 ## Back Propagation
 
