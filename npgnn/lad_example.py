@@ -24,7 +24,7 @@ def draw_kkl(
         labels=label_map,
         node_color=node_color,
         ax=ax,
-        **kwargs
+        **kwargs,
     )
 
     if title is not None:
@@ -62,14 +62,16 @@ colours = {
     -1: "orange",  # Mine
 }
 
-labels = [colours[i] for i in grid.flatten()]
+node_colours = [colours[i] for i in grid.flatten()]
 
 print(grid.T[::-1])
-draw_kkl(G, None, node_color=labels, pos=np.indices(SHAPE).flatten().reshape(2, -1).T)
+draw_kkl(
+    G, None, node_color=node_colours, pos=np.indices(SHAPE).flatten().reshape(2, -1).T
+)
 
 gcn_model = GCNNetwork(
     n_in=SIZE,
-    n_out=2,  # mine or not mine
+    n_out=1,  # mine or not mine
     hidden_sizes=(16, 2),
     activation=np.tanh,
     seed=5052023,
@@ -77,16 +79,12 @@ gcn_model = GCNNetwork(
 
 ## == Training ==============================================
 
-mask_frac = 0.1
+mask_frac = 0.5
 mask = int(mask_frac * SIZE)
 
 nodes = np.arange(SIZE)
-np.random.shuffle(nodes)
 
-train_nodes = nodes[:mask]
-test_nodes = nodes[mask:]
-
-opt = GradDescentOptim(lr=2e-2, wd=2.5e-2)
+opt = GradDescentOptim(lr=2e-4, wd=2.5e-3)
 
 embeds = []
 accs = []
@@ -97,7 +95,41 @@ loss_min = 1e6
 es_iters = 0
 es_steps = 50
 
-# for epoch in range(15000):
-#     y_pred = gcn_model.forward(A_hat, X)
+for epoch, grid in enumerate(grid_gen.generate_n_grids(15000)):
+    X = np.diag(grid.flatten())
+    np.random.shuffle(nodes)
 
-#     opt(y_pred, labels, train_nodes)
+    train_nodes = nodes[mask:]
+    test_nodes = nodes[:mask]
+
+    labels = (grid.flatten() != -1).astype(float)[:, None]
+
+    y_pred = gcn_model.forward(A_hat, X)
+
+    opt(y_pred, labels, train_nodes)
+
+    for layer in gcn_model.layers[::-1]:
+        layer.backward(opt, update=True)
+
+    embeds.append(gcn_model.embedding(A_hat, X))
+
+    acc = (np.argmax(y_pred, axis=1) == np.argmax(labels, axis=1))[test_nodes]
+    accs.append(acc.mean())
+
+    loss_train = np.log(np.sum(np.abs(y_pred[train_nodes] - labels[train_nodes])))
+    loss_test = np.log(np.sum(np.abs(y_pred[test_nodes] - labels[test_nodes])))
+
+    if loss_test < loss_min:
+        loss_min = loss_test
+        es_iters = 0
+    else:
+        es_iters += 1
+
+    if es_iters > es_steps:
+        print("early stopping")
+        break
+
+    if not epoch % 100:
+        print(
+            f"Epoch: {epoch}, Train loss: {loss_train:.3f}, Test Loss: {loss_test:.3f}"
+        )
