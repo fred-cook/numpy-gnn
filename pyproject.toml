@@ -12,6 +12,7 @@ scipy = "^1.11.3"
 numpy = "^1.26.1"
 networkx = "^3.2.1"
 matplotlib = "^3.8.1"
+jax = {extras = ["cpu"], version = "^0.4.20"}
 
 
 [build-system]
