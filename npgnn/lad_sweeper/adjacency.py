@@ -30,7 +30,7 @@ class Adjacency:
         """
         A = np.zeros((self.size, self.size + 1))
 
-        A[np.repeat(np.arange(9), self.size), self.neibs.flatten()] = 1
+        A[np.repeat(np.arange(self.size), 9), self.neibs.flatten()] = 1
         if not self_connected:
             A[np.diag_indices(len(A))] = 0
         return A[:, :-1]
